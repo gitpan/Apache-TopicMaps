@@ -167,25 +167,25 @@ PERL_ARCHIVE =
 PERL_ARCHIVE_AFTER = 
 
 TO_INST_PM = lib/Apache/TopicMaps.pm \
-	lib/Apache/TopicMaps/html/index.pm \
-	lib/Apache/TopicMaps/html/search.pm \
-	lib/Apache/TopicMaps/html/topic.pm \
-	lib/Apache/TopicMaps/xtm/index \
-	lib/Apache/TopicMaps/xtm/search \
-	lib/Apache/TopicMaps/xtm/topic
+	lib/Apache/TopicMaps/application/xtmPLUSxml/index.pm \
+	lib/Apache/TopicMaps/application/xtmPLUSxml/search.pm \
+	lib/Apache/TopicMaps/application/xtmPLUSxml/topic.pm \
+	lib/Apache/TopicMaps/text/html/index.pm \
+	lib/Apache/TopicMaps/text/html/search.pm \
+	lib/Apache/TopicMaps/text/html/topic.pm
 
-PM_TO_BLIB = lib/Apache/TopicMaps/xtm/topic \
-	blib/lib/Apache/TopicMaps/xtm/topic \
-	lib/Apache/TopicMaps/html/search.pm \
-	blib/lib/Apache/TopicMaps/html/search.pm \
-	lib/Apache/TopicMaps/xtm/search \
-	blib/lib/Apache/TopicMaps/xtm/search \
-	lib/Apache/TopicMaps/html/index.pm \
-	blib/lib/Apache/TopicMaps/html/index.pm \
-	lib/Apache/TopicMaps/xtm/index \
-	blib/lib/Apache/TopicMaps/xtm/index \
-	lib/Apache/TopicMaps/html/topic.pm \
-	blib/lib/Apache/TopicMaps/html/topic.pm \
+PM_TO_BLIB = lib/Apache/TopicMaps/text/html/search.pm \
+	blib/lib/Apache/TopicMaps/text/html/search.pm \
+	lib/Apache/TopicMaps/application/xtmPLUSxml/topic.pm \
+	blib/lib/Apache/TopicMaps/application/xtmPLUSxml/topic.pm \
+	lib/Apache/TopicMaps/text/html/index.pm \
+	blib/lib/Apache/TopicMaps/text/html/index.pm \
+	lib/Apache/TopicMaps/text/html/topic.pm \
+	blib/lib/Apache/TopicMaps/text/html/topic.pm \
+	lib/Apache/TopicMaps/application/xtmPLUSxml/index.pm \
+	blib/lib/Apache/TopicMaps/application/xtmPLUSxml/index.pm \
+	lib/Apache/TopicMaps/application/xtmPLUSxml/search.pm \
+	blib/lib/Apache/TopicMaps/application/xtmPLUSxml/search.pm \
 	lib/Apache/TopicMaps.pm \
 	blib/lib/Apache/TopicMaps.pm
 
@@ -434,9 +434,12 @@ clean ::
 realclean purge ::  clean
 	rm -rf $(INST_AUTODIR) $(INST_ARCHAUTODIR)
 	rm -rf $(DISTVNAME)
-	rm -f  blib/lib/Apache/TopicMaps/xtm/topic blib/lib/Apache/TopicMaps/html/search.pm
-	rm -f blib/lib/Apache/TopicMaps/xtm/search blib/lib/Apache/TopicMaps/html/index.pm
-	rm -f blib/lib/Apache/TopicMaps/xtm/index blib/lib/Apache/TopicMaps/html/topic.pm
+	rm -f  blib/lib/Apache/TopicMaps/text/html/search.pm
+	rm -f blib/lib/Apache/TopicMaps/application/xtmPLUSxml/topic.pm
+	rm -f blib/lib/Apache/TopicMaps/text/html/index.pm
+	rm -f blib/lib/Apache/TopicMaps/text/html/topic.pm
+	rm -f blib/lib/Apache/TopicMaps/application/xtmPLUSxml/index.pm
+	rm -f blib/lib/Apache/TopicMaps/application/xtmPLUSxml/search.pm
 	rm -f blib/lib/Apache/TopicMaps.pm
 	rm -rf Makefile Makefile.old
 
@@ -687,11 +690,13 @@ ppd:
 
 pm_to_blib: $(TO_INST_PM)
 	@$(PERLRUNINST) "-MExtUtils::Install" \
-	-e "pm_to_blib({qw{lib/Apache/TopicMaps/xtm/topic blib/lib/Apache/TopicMaps/xtm/topic lib/Apache/TopicMaps/html/search.pm blib/lib/Apache/TopicMaps/html/search.pm}},'$(INST_LIB)/auto','$(PM_FILTER)')"
+	-e "pm_to_blib({qw{lib/Apache/TopicMaps/text/html/search.pm blib/lib/Apache/TopicMaps/text/html/search.pm lib/Apache/TopicMaps/application/xtmPLUSxml/topic.pm blib/lib/Apache/TopicMaps/application/xtmPLUSxml/topic.pm}},'$(INST_LIB)/auto','$(PM_FILTER)')"
 	@$(PERLRUNINST) "-MExtUtils::Install" \
-	-e "pm_to_blib({qw{lib/Apache/TopicMaps/html/index.pm blib/lib/Apache/TopicMaps/html/index.pm lib/Apache/TopicMaps/xtm/search blib/lib/Apache/TopicMaps/xtm/search lib/Apache/TopicMaps.pm blib/lib/Apache/TopicMaps.pm}},'$(INST_LIB)/auto','$(PM_FILTER)')"
+	-e "pm_to_blib({qw{lib/Apache/TopicMaps/text/html/index.pm blib/lib/Apache/TopicMaps/text/html/index.pm lib/Apache/TopicMaps/application/xtmPLUSxml/index.pm blib/lib/Apache/TopicMaps/application/xtmPLUSxml/index.pm}},'$(INST_LIB)/auto','$(PM_FILTER)')"
 	@$(PERLRUNINST) "-MExtUtils::Install" \
-	-e "pm_to_blib({qw{lib/Apache/TopicMaps/html/topic.pm blib/lib/Apache/TopicMaps/html/topic.pm lib/Apache/TopicMaps/xtm/index blib/lib/Apache/TopicMaps/xtm/index}},'$(INST_LIB)/auto','$(PM_FILTER)')"
+	-e "pm_to_blib({qw{lib/Apache/TopicMaps/text/html/topic.pm blib/lib/Apache/TopicMaps/text/html/topic.pm lib/Apache/TopicMaps/application/xtmPLUSxml/search.pm blib/lib/Apache/TopicMaps/application/xtmPLUSxml/search.pm}},'$(INST_LIB)/auto','$(PM_FILTER)')"
+	@$(PERLRUNINST) "-MExtUtils::Install" \
+	-e "pm_to_blib({qw{lib/Apache/TopicMaps.pm blib/lib/Apache/TopicMaps.pm}},'$(INST_LIB)/auto','$(PM_FILTER)')"
 	@$(TOUCH) $@
 
 # --- MakeMaker selfdocument section:

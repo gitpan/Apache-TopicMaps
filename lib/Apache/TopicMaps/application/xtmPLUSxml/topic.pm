@@ -1,4 +1,4 @@
-package TMS::xtm::index;
+package Apache::TopicMaps::application::xtmPLUSxml::topic;
 
 use strict;
 use URI::Escape;
@@ -7,16 +7,13 @@ use LWP::UserAgent;
 use Apache::Constants qw(:common :http :response);
 
 my $SAM = "http://www.gooseworks.org/disclosures/SAM.xml";
-my $SAMPSI = "http://www.gooseworks.org/psi/";
-my $NECPSI = "http://cmdb.nec.dkrz.de/tma/nec-dkrz-core/";
-my $iso2788_conf = "/usr/local/cmdb/etc/iso2788_pm.conf";
 
 
-sub index_start_xtm {
+sub topic_start_xtm {
         my ($ud, $name, $topic) = @_;
         my $r = $$ud->{request};
         my $tm = $$ud->{topicmap};
-        if( $name eq "entry" )
+        if( $name eq "topic" )
         {
 		my $sirs = $tm->get_property($topic, $SAM ."::SubjectIndicators");
 		my $scr = $tm->get_property($topic, $SAM ."::SubjectAddress");
@@ -64,12 +61,12 @@ sub index_start_xtm {
         }
 }
 
-sub index_end_xtm
+sub topic_end_xtm
 {
         my ($ud,$name) = @_;
         my $r = $$ud->{request};
         my $tm = $$ud->{topicmap};
-        if( $name eq "entry" )
+        if( $name eq "topic" )
         {
                 $r->print("</topic>\n");
         }
@@ -78,14 +75,17 @@ sub index_end_xtm
 sub do
 {
 	my ($r,$tm) = @_;
-	#my %params = $r->args;	
-	#my $topic = $tm->get_topic_from_string($params{p} , $params{v});
-	#return HTTP_NOT_FOUND unless ($topic);
+	my %params = $r->args;	
+	my $sidp_string = $params{topic};
+        print STDERR $sidp_string , "\n";
+        my $topic = Apache::TopicMaps::get_topic_from_full_sidp_string($tm,$sidp_string);
+
+	return HTTP_NOT_FOUND unless ($topic);
   	$r->send_http_header('application/xtm+xml');
 	$r->print(qq{<?xml version="1.0" encoding="UTF-8"?>\n<topicMap>\n});
 
 	my $user_data = { 'request' => $r , 'topicmap' => $tm};
-       	$tm->query2(\$user_data, \&index_start_xtm, \&index_end_xtm, "VIEW index()" );
+       	$tm->query2(\$user_data, \&topic_start_xtm, \&topic_end_xtm, "VIEW topic(topic=$topic)" );
 
 	$r->print(qq{</topicMap>\n});
 	return OK;

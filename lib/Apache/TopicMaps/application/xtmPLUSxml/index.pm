@@ -1,4 +1,4 @@
-package TMS::xtm::search;
+package Apache::TopicMaps::application::xtmPLUSxml::index;
 
 use strict;
 use URI::Escape;
@@ -6,18 +6,14 @@ use TM;
 use LWP::UserAgent;
 use Apache::Constants qw(:common :http :response);
 
-my $ua = LWP::UserAgent->new();
-
 my $SAM = "http://www.gooseworks.org/disclosures/SAM.xml";
-my $SAMPSI = "http://www.gooseworks.org/psi/";
-my $NECPSI = "http://cmdb.nec.dkrz.de/tma/nec-dkrz-core/";
-my $iso2788_conf = "/usr/local/cmdb/etc/iso2788_pm.conf";
 
-sub hitlist_start_xtm {
+
+sub index_start_xtm {
         my ($ud, $name, $topic) = @_;
         my $r = $$ud->{request};
         my $tm = $$ud->{topicmap};
-        if( $name eq "hit" )
+        if( $name eq "entry" )
         {
 		my $sirs = $tm->get_property($topic, $SAM ."::SubjectIndicators");
 		my $scr = $tm->get_property($topic, $SAM ."::SubjectAddress");
@@ -46,35 +42,50 @@ sub hitlist_start_xtm {
                 	$r->print("  <baseName><baseNameString>$n</baseNameString></baseName>\n");
 		}
 
-		$r->print(qq{</topic>\n});
+        }
+        elsif( $name eq "occurrence" )
+        {
+		my $scr = $tm->get_property($topic, $SAM ."::SubjectAddress");
+		my $data = $tm->get_property($topic, $SAM ."::SubjectData");
+
+                $r->print(qq{<occurrence id="$topic">\n});
+		if($data)
+		{
+			$r->print("    <resourceData>$data</resourceData>\n");
+		}
+		else
+		{
+			$r->print(qq{    <resourceRef xlink:href="$scr" />\n});
+		}
+		$r->print("  </occurrence>\n");
         }
 }
-sub hitlist_end_xtm
+
+sub index_end_xtm
 {
         my ($ud,$name) = @_;
         my $r = $$ud->{request};
         my $tm = $$ud->{topicmap};
-        if( $name eq "hit" )
+        if( $name eq "entry" )
         {
-                #$r->print("</p>\n");
+                $r->print("</topic>\n");
         }
 }
-
-
 
 sub do
 {
 	my ($r,$tm) = @_;
-	my %params = $r->args;	
+	#my %params = $r->args;	
+	#my $topic = $tm->get_topic_from_string($params{p} , $params{v});
+	#return HTTP_NOT_FOUND unless ($topic);
+	print STDERR "do application/xtm+xml\n";
   	$r->send_http_header('application/xtm+xml');
 	$r->print(qq{<?xml version="1.0" encoding="UTF-8"?>\n<topicMap>\n});
-	if(exists $params{query} && $params{query})
-	{
-		my $user_data = { 'request' => $r , 'topicmap' => $tm};
-       		$tm->query2(\$user_data, \&hitlist_start_xtm, \&hitlist_end_xtm, "VIEW hitlist(query=$params{query})" );
-	}
+
+	my $user_data = { 'request' => $r , 'topicmap' => $tm};
+       	$tm->query2(\$user_data, \&index_start_xtm, \&index_end_xtm, "VIEW index()" );
+
 	$r->print(qq{</topicMap>\n});
 	return OK;
 }
-
 1;

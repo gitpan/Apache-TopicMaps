@@ -1,4 +1,4 @@
-package Apache::TopicMaps::html::search;
+package Apache::TopicMaps::text::html::search;
 
 use strict;
 use URI::Escape;
@@ -9,10 +9,6 @@ use Apache::Constants qw(:common :http :response);
 my $ua = LWP::UserAgent->new();
 
 my $SAM = "http://www.gooseworks.org/disclosures/SAM.xml";
-my $SAMPSI = "http://www.gooseworks.org/psi/";
-my $NECPSI = "http://cmdb.nec.dkrz.de/tma/nec-dkrz-core/";
-my $iso2788_conf = "/usr/local/cmdb/etc/iso2788_pm.conf";
-
 
 sub hitlist_start_html {
         my ($ud, $name, $topic) = @_;
@@ -52,7 +48,7 @@ sub do
   	$r->send_http_header('text/html');
 	$r->print(qq{
 	<HTML>
-	<HEAD><TITLE>NEC/DKRZ TMS </TITLE>
+	<HEAD><TITLE>TMS </TITLE>
 	</HEAD>
 	<body>
 	<p>

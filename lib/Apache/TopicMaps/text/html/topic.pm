@@ -1,4 +1,4 @@
-package Apache::TopicMaps::html::topic;
+package Apache::TopicMaps::text::html::topic;
 
 use strict;
 use URI::Escape;
@@ -8,12 +8,10 @@ use Apache::Constants qw(:common :http :response);
 use HTML::Mason;
 
 
+
 my $ua = LWP::UserAgent->new();
 
 my $SAM = "http://www.gooseworks.org/disclosures/SAM.xml";
-my $SAMPSI = "http://www.gooseworks.org/psi/";
-my $NECPSI = "http://cmdb.nec.dkrz.de/tma/nec-dkrz-core/";
-my $iso2788_conf = "/usr/local/cmdb/etc/iso2788_pm.conf";
 
 sub topic_start_html {
         my ($ud, $name, $topic) = @_;
@@ -132,12 +130,15 @@ sub do
 	my ($r,$tm,$tms) = @_;
 	print STDERR "topic_html enter\n";
 	my $USEM = 0;
+	my $mason_dir = $r->dir_config('TopicMapsMasonDir');
+	$USEM = 1 if(defined $mason_dir);
+
 	#$tm->dump();
 
 	my %params = $r->args;	
 	my $sidp_string = $params{topic};
 	print STDERR $sidp_string , "\n";
-	my $topic = TMS::get_topic_from_full_sidp_string($tm,$sidp_string);
+	my $topic = Apache::TopicMaps::get_topic_from_full_sidp_string($tm,$sidp_string);
 
 	# FIXME: set $r->uri to include QS
 	return HTTP_NOT_FOUND unless (defined $topic);
@@ -199,9 +200,9 @@ sub do
 	return OK;
 	}
 
-	my $d = '/home/jan/projects/NEC/nec_index.html';
+	my $d = $mason_dir .'/index.mhtml';
 
-	my %hash = ( topic => $topic , topicmap => $tm );
+	my %hash = ( topic => $topic , topicmap => $tm , r => $r);
 
 	my $interp = HTML::Mason::Interp->new();
 	my $component = $interp->make_component( comp_file => $d);

@@ -1,4 +1,4 @@
-package Apache::TopicMaps::html::index;
+package Apache::TopicMaps::text::html::index;
 
 use strict;
 use URI::Escape;
@@ -9,9 +9,6 @@ use Apache::Constants qw(:common :http :response);
 #my $ua = LWP::UserAgent->new();
 
 my $SAM = "http://www.gooseworks.org/disclosures/SAM.xml";
-my $SAMPSI = "http://www.gooseworks.org/psi/";
-my $NECPSI = "http://cmdb.nec.dkrz.de/tma/nec-dkrz-core/";
-my $iso2788_conf = "/usr/local/cmdb/etc/iso2788_pm.conf";
 
 sub index_start_html {
         my ($ud, $name, $topic) = @_;
@@ -62,7 +59,7 @@ sub index_start_html {
 		{
 			if(exists($$ud->{tms}) )
 			{
-				TMS::moo($tm, 'topic', { 'topic' => $tm->get_sidp_string($topic)} );
+				Apache::TopicMaps::moo($tm, 'topic', { 'topic' => $tm->get_sidp_string($topic)} );
 			}
 			my $names = $tm->get_property($topic, $SAM ."::BaseNames");
 			my $name = $scr;

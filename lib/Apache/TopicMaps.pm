@@ -52,15 +52,12 @@ sub redirect_ok {0}
 
 #sub get_basic_credentials
 #{
-#        return ("necwatch","NEChpce");
+#        return ("user","pass");
 #}
 
 #TM::set_trace("*");
 
 my $SAM = "http://www.gooseworks.org/disclosures/SAM.xml";
-#my $SAMPSI = "http://www.gooseworks.org/psi/";
-#my $NECPSI = "http://cmdb.nec.dkrz.de/tma/nec-dkrz-core/";
-#my $iso2788_conf = "/usr/local/cmdb/etc/iso2788_pm.conf";
 
 # this is the map for the static tm handler
 my $topicmap;
@@ -95,19 +92,19 @@ sub choose_mime
 {
 	my $r = shift;
 
-	my $accept = 'plain';
+	my $accept = 'text/plain';
 	my $accept_header = $r->header_in('Accept');
 
 	if($accept_header =~ /\*\/\*/) {
-		return 'html';
+		return 'text::html';
 	} elsif($accept_header =~ /text\/html/) {
-		return 'html';
+		return 'text::html';
 	} elsif($accept_header =~ /application\/xtm\+xml/) {
-		return 'xtm';
+		return 'application::xtmPLUSxml';
 	} elsif($accept_header =~ /application\/rdf\+xml/) {
-		return 'rdf';
+		return 'application::rdfPLUSxml';
 	}
-	return 'plain';
+	return 'text::plain';
 }
 
 sub load_maps
@@ -135,7 +132,7 @@ sub load_maps
 		{
 
 			my $request = HTTP::Request->new('GET', '$path');
-			#$request->authorization_basic("necwatch","NEChpce");
+			#$request->authorization_basic("user","pass");
 			my $tm_id = time() .'-'.$$;
 			my $response = $ua->request($request, '/tmp/topicmap'.$tm_id);
 			$tm->load_file( '/tmp/topicmap'.$tm_id,$pm,$parse );
@@ -172,16 +169,17 @@ sub static_tm_handler {
 	if(! defined $topicmap)
 	{
 		$topicmap = TM::TopicMap->new();
-		#$topicmap->require("file:///usr/local/cmdb/disclosures/NEC.xml") || die("unable to load file:///usr/local/cmdb/disclosures/NEC.xml, " . $topicmap->get_error() ); 
 		load_maps($r,$topicmap);
 	}
 	trim_path_info($r);
 	my $accept = choose_mime($r);
 
-	#eval( 'require("' . "/home/jan/projects/NEC/TMS/$accept/" . $r->path_info .'")' );
+	#eval( 'require("' . "/home/jan/projects/FOO/TMS/$accept/" . $r->path_info .'")' );
 	eval( 'require ' . "Apache::TopicMaps::" .$accept . "::" . $r->path_info .' ' );
+	print STDERR 'require ' . "Apache::TopicMaps::" .$accept . "::" . $r->path_info .' ' ;
 	if ($@)
 	{
+		$r->log_error( $@ );	
 		return HTTP_NOT_FOUND if($@ =~ qr{^Can't locate});
 		$r->log_error( $@ );	
 		return SERVER_ERROR;
@@ -267,7 +265,9 @@ sub handler {
 	trim_path_info($r);
 	my $accept = choose_mime($r);
 
-	eval( 'require("' . "/home/jan/projects/NEC/TMS/$accept/" . $r->path_info .'")' );
+	#eval( 'require("' . "/home/jan/projects/FOO/TMS/$accept/" . $r->path_info .'")' );
+	eval( 'require ' . "Apache::TopicMaps::" .$accept . "::" . $r->path_info .' ' );
+	print STDERR 'require ' . "Apache::TopicMaps::" .$accept . "::" . $r->path_info .' ' ;
 	if ($@)
 	{
 		return HTTP_NOT_FOUND if($@ =~ qr{^Can't locate});
@@ -302,9 +302,9 @@ sub handler {
 	}
 
 	my $rv;
-	print STDERR "\$rv = TMS::".$accept."::".$r->path_info."::do" . '($r,$result_tm,1)';
+	print STDERR "\$rv = Apache::TopicMaps::".$accept."::".$r->path_info."::do" . '($r,$result_tm,1)';
 
-	eval( "\$rv = TMS::".$accept."::".$r->path_info."::do" . '($r,$result_tm,1)' );
+	eval( "\$rv = Apache::TopicMaps::".$accept."::".$r->path_info."::do" . '($r,$result_tm,1)' );
 	if ($@)
 	{
 		$r->log_error( $@ );	
